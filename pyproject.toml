@@ -1,0 +1,23 @@
+[project]
+name = "codif-ape-graph-rag"
+version = "0.1.0"
+description = "To add"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain-core",
+    "langchain-neo4j",
+    "openpyxl",
+    "pandas",
+    "pre-commit",
+    "ruff",
+    "xlrd",
+    "s3fs",
+    "duckdb",
+]
+authors = [
+  {name="Thomas Faria", email="thomas.faria@insee.fr"}
+]
+
+[tool.ruff]
+line-length = 130
