@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "langchain-core",
     "langchain-neo4j",
+    "langchain_huggingface",
     "openpyxl",
     "pandas",
     "pre-commit",
