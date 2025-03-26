@@ -15,6 +15,8 @@ dependencies = [
     "xlrd",
     "s3fs",
     "duckdb",
+    "pyarrow>=19.0.1",
+    "langchain-community>=0.3.20",
 ]
 authors = [
   {name="Thomas Faria", email="thomas.faria@insee.fr"}
