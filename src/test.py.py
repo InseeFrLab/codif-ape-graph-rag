@@ -1,4 +1,3 @@
-from langchain.output_parsers import PydanticOutputParser
 from langchain.schema import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_neo4j import Neo4jGraph, Neo4jVector
@@ -40,8 +39,6 @@ client = OpenAI(
 
 ###########
 query_text = "query : Je suis boulanger dans le 93"
-db.similarity_search(query_text, k=2, filter={"FINAL": 1})
-
 
 ###### NIVEAU 1
 # Je chope 5 propals pour les niveaux 1
@@ -52,12 +49,13 @@ SYS_PROMPT = """Tu es un expert de la nomenclature APE. A chaque niveau, choisis
 CLASSIF_PROMPT = """\
 * L'activité principale de l'entreprise est : {activity}\n
 
-* Voici la liste des codes APE potentiels et leurs notes explicatives :
+* Voici la liste des codes APE potentiels et leurs notes explicatives :\n
 {proposed_codes}\n
 ##########
 * Le résultat doit être formatté comme une instance JSON qui est conforme au schema ci-dessous. Voici un exemple de résultat à retourner :\n```json\n{{"properties": {{"code": {{"description": "Le code APE sélectionné", "title": "code", "type": "string"}}}}, "required": ["code"]}}\n```
 
-* Le code sélectionné doit absolument faire partie de cette liste ou alors doit avoir été explicitement mentionné dans les notes explicatives.
+* Le code sélectionné doit absolument faire partie de cette liste des codes APE suivant : [{list_proposed_codes}].
+
 """
 
 
@@ -68,30 +66,31 @@ class Response(BaseModel):
 prompt = CLASSIF_PROMPT.format(
     activity=query_text,
     proposed_codes="\n\n".join([f"##########\nCode APE : {doc.metadata['CODE']}{doc.page_content}" for doc in retrieved_docs]),
+    list_proposed_codes=", ".join([f"'{doc.metadata['CODE']}'" for doc in retrieved_docs]),
 )
 
 
-# Besoin d'un import langchain relou
-parser = PydanticOutputParser(pydantic_object=Response)
-chat_response = client.chat.completions.create(
-    model=model,
-    messages=[
-        {"role": "system", "content": SYS_PROMPT},
-        {"role": "user", "content": prompt},
-    ],
-)
-selected_code = parser.parse(chat_response.choices[0].message.content).code
+# # Besoin d'un import langchain relou
+# parser = PydanticOutputParser(pydantic_object=Response)
+# chat_response = client.chat.completions.create(
+#     model=model,
+#     messages=[
+#         {"role": "system", "content": SYS_PROMPT},
+#         {"role": "user", "content": prompt},
+#     ],
+# )
+# selected_code = parser.parse(chat_response.choices[0].message.content).code
 
 
-chat_response_guided_json = client.chat.completions.create(
-    model=model,
-    messages=[
-        {"role": "system", "content": SYS_PROMPT},
-        {"role": "user", "content": prompt},
-    ],
-    extra_body={"guided_json": Response.model_json_schema()},
-)
-selected_code = Response.model_validate_json(chat_response_guided_json.choices[0].message.content).code
+# chat_response_guided_json = client.chat.completions.create(
+#     model=model,
+#     messages=[
+#         {"role": "system", "content": SYS_PROMPT},
+#         {"role": "user", "content": prompt},
+#     ],
+#     extra_body={"guided_json": Response.model_json_schema()},
+# )
+# selected_code = Response.model_validate_json(chat_response_guided_json.choices[0].message.content).code
 
 
 parsed_response = client.beta.chat.completions.parse(
@@ -101,10 +100,9 @@ parsed_response = client.beta.chat.completions.parse(
         {"role": "user", "content": prompt},
     ],
     response_format=Response,
-    extra_body=dict(guided_decoding_backend="xgrammar"),
+    extra_body=dict(guided_decoding_backend="guidance"),
 )
 selected_code = parsed_response.choices[0].message.parsed.code
-
 
 ###### NIVEAU 2
 
@@ -123,9 +121,9 @@ def dicts_to_documents(results):
     docs = []
     for record in results:
         node = record["n"]
-        metadata = dict(node)
-        content = metadata.pop("text", "")
-        metadata.pop("embedding", "")
+        metadata_to_keep = ["FINAL", "NAME", "PARENT_CODE", "ID", "LEVEL", "PARENT_ID", "CODE"]
+        metadata = {key: node[key] for key in metadata_to_keep if key in node}
+        content = f"\ntext: {node['text']}"
         docs.append(Document(page_content=content, metadata=metadata))
     return docs
 
@@ -145,6 +143,7 @@ else:
 prompt = CLASSIF_PROMPT.format(
     activity=query_text,
     proposed_codes="\n\n".join([f"##########\nCode APE : {doc.metadata['CODE']}{doc.page_content}" for doc in retrieved_docs]),
+    list_proposed_codes=", ".join([f"'{doc.metadata['CODE']}'" for doc in retrieved_docs]),
 )
 
 parsed_response = client.beta.chat.completions.parse(
@@ -154,6 +153,99 @@ parsed_response = client.beta.chat.completions.parse(
         {"role": "user", "content": prompt},
     ],
     response_format=Response,
-    extra_body=dict(guided_decoding_backend="xgrammar"),
+    extra_body=dict(guided_decoding_backend="guidance"),
+)
+selected_code = parsed_response.choices[0].message.parsed.code
+
+###### NIVEAU 3
+
+if count_children(graph, selected_code) > 5:
+    # On fait similarity search
+    retrieved_docs = db.similarity_search(query_text, k=5, filter={"PARENT_CODE": selected_code})
+else:
+    raw_results = db.query(f"""
+        MATCH (n)
+        WHERE n.PARENT_CODE = '{selected_code}'
+        RETURN n
+    """)
+    retrieved_docs = dicts_to_documents(raw_results)
+
+prompt = CLASSIF_PROMPT.format(
+    activity=query_text,
+    proposed_codes="\n\n".join([f"##########\nCode APE : {doc.metadata['CODE']}{doc.page_content}" for doc in retrieved_docs]),
+    list_proposed_codes=", ".join([f"'{doc.metadata['CODE']}'" for doc in retrieved_docs]),
+)
+
+parsed_response = client.beta.chat.completions.parse(
+    model=model,
+    messages=[
+        {"role": "system", "content": SYS_PROMPT},
+        {"role": "user", "content": prompt},
+    ],
+    response_format=Response,
+    extra_body=dict(guided_decoding_backend="guidance"),
+)
+selected_code = parsed_response.choices[0].message.parsed.code
+print(selected_code)
+
+###### NIVEAU 4
+
+
+if count_children(graph, selected_code) > 5:
+    # On fait similarity search
+    retrieved_docs = db.similarity_search(query_text, k=5, filter={"PARENT_CODE": selected_code})
+else:
+    raw_results = db.query(f"""
+        MATCH (n)
+        WHERE n.PARENT_CODE = '{selected_code}'
+        RETURN n
+    """)
+    retrieved_docs = dicts_to_documents(raw_results)
+
+prompt = CLASSIF_PROMPT.format(
+    activity=query_text,
+    proposed_codes="\n\n".join([f"##########\nCode APE : {doc.metadata['CODE']}{doc.page_content}" for doc in retrieved_docs]),
+    list_proposed_codes=", ".join([f"'{doc.metadata['CODE']}'" for doc in retrieved_docs]),
+)
+
+parsed_response = client.beta.chat.completions.parse(
+    model=model,
+    messages=[
+        {"role": "system", "content": SYS_PROMPT},
+        {"role": "user", "content": prompt},
+    ],
+    response_format=Response,
+    extra_body=dict(guided_decoding_backend="guidance"),
+)
+selected_code = parsed_response.choices[0].message.parsed.code
+
+###### NIVEAU 5
+
+if count_children(graph, selected_code) > 5:
+    # On fait similarity search
+    retrieved_docs = db.similarity_search(query_text, k=5, filter={"PARENT_CODE": selected_code})
+else:
+    raw_results = db.query(f"""
+        MATCH (n)
+        WHERE n.PARENT_CODE = '{selected_code}'
+        RETURN n
+    """)
+    retrieved_docs = dicts_to_documents(raw_results)
+
+prompt = CLASSIF_PROMPT.format(
+    activity=query_text,
+    proposed_codes="\n\n".join([f"##########\nCode APE : {doc.metadata['CODE']}{doc.page_content}" for doc in retrieved_docs]),
+    list_proposed_codes=", ".join([f"'{doc.metadata['CODE']}'" for doc in retrieved_docs]),
+)
+
+
+parsed_response = client.beta.chat.completions.parse(
+    model=model,
+    messages=[
+        {"role": "system", "content": SYS_PROMPT},
+        {"role": "user", "content": prompt},
+    ],
+    response_format=Response,
+    extra_body=dict(guided_decoding_backend="guidance"),
 )
 selected_code = parsed_response.choices[0].message.parsed.code
