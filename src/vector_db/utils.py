@@ -19,7 +19,7 @@ def dicts_to_documents(results: List[dict]) -> List[Document]:
 
 def retrieve_docs_for_code(code: str, query_text: str, db: Neo4jVector) -> List[Document]:
     if count_children(db, code) > 5:
-        return db.similarity_search(query_text, k=5, filter={"PARENT_CODE": code})
+        return db.similarity_search(f"query : {query_text}", k=5, filter={"PARENT_CODE": code})
     else:
         raw_results = db.query(f"""
             MATCH (n)
