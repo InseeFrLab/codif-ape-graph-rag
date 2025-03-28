@@ -15,6 +15,7 @@ dependencies = [
     "langchain-huggingface>=0.1.2",
     "uvicorn>=0.34.0",
     "fastapi>=0.115.12",
+    "streamlit>=1.44.0",
 ]
 authors = [
   {name="Thomas Faria", email="thomas.faria@insee.fr"}
