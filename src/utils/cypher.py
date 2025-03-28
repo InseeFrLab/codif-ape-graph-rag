@@ -10,8 +10,9 @@ def create_parent_child_relationships(graph: Neo4jGraph):
     logger.info("🔁 Creating HAS_CHILD relationships")
     graph.query(
         """
-    MATCH (parent), (child)
-    WHERE parent.ID = child.PARENT_ID AND child.PARENT_ID IS NOT NULL
+    MATCH (child)
+    WHERE child.PARENT_ID IS NOT NULL
+    MATCH (parent {ID: child.PARENT_ID})
     MERGE (parent)-[:HAS_CHILD]->(child)
     """
     )

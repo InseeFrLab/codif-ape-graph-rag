@@ -1,9 +1,9 @@
-import asyncio
 import logging
 from typing import List
 
 from langchain_neo4j import Neo4jVector
 from openai import AsyncOpenAI
+from tqdm.asyncio import tqdm
 
 from llm.prompting import format_prompt
 from llm.responses import get_llm_choice_async
@@ -37,7 +37,7 @@ async def classify_activity_async(query_text: str, db: Neo4jVector, client: Asyn
 
 async def classify_activities_batch_async(activities: List[str], db, client) -> List[dict]:
     tasks = [classify_activity_async(a, db, client) for a in activities]
-    raw_results = await asyncio.gather(*tasks, return_exceptions=True)
+    raw_results = await tqdm.gather(*tasks)
 
     return [
         {"activity": act, "code_ape": code if not isinstance(code, Exception) else "ERROR"}
