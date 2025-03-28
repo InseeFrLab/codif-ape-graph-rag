@@ -4,7 +4,7 @@ from typing import List
 from langchain.schema import Document
 from langchain_neo4j import Neo4jVector
 
-from utils.cypher import count_children_async
+from utils.cypher import count_children
 
 
 def dicts_to_documents(results: List[dict]) -> List[Document]:
@@ -18,15 +18,11 @@ def dicts_to_documents(results: List[dict]) -> List[Document]:
     return docs
 
 
-def retrieve_docs_for_code(code: str, query_text: str, db: Neo4jVector) -> List[Document]:
-    return asyncio.run(retrieve_docs_for_code_async())
-
-
-async def retrieve_docs_for_code_async(code: str, query_text: str, db: Neo4jVector) -> List[Document]:
+async def retrieve_docs_for_code(code: str, query_text: str, db: Neo4jVector) -> List[Document]:
     """
     Async version to retrieve APE code child documents, using similarity search or direct query.
     """
-    if await count_children_async(db, code) > 5:
+    if await count_children(db, code) > 5:
         return await db.asimilarity_search(f"query : {query_text}", k=5, filter={"PARENT_CODE": code})
     else:
         raw = await asyncio.to_thread(

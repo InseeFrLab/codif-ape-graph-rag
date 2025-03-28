@@ -7,7 +7,7 @@ from constants.llm import URL_LLM_API
 
 
 @asynccontextmanager
-async def get_llm_client_async():
+async def get_llm_client():
     client = AsyncOpenAI(api_key="EMPTY", base_url=URL_LLM_API, timeout=httpx.Timeout(30.0))
     try:
         yield client

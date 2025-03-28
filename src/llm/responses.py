@@ -10,20 +10,7 @@ from llm.schema import Response
 logger = logging.getLogger(__name__)
 
 
-def get_llm_choice(prompt: str, client: OpenAI) -> str:
-    response = client.beta.chat.completions.parse(
-        model=GENERATION_MODEL,
-        messages=[
-            {"role": "system", "content": SYS_PROMPT},
-            {"role": "user", "content": prompt},
-        ],
-        response_format=Response,
-        extra_body={"guided_decoding_backend": "guidance"},
-    )
-    return response.choices[0].message.parsed.code
-
-
-async def get_llm_choice_async(prompt: str, client: OpenAI, retries: int = 3, delay: float = 2.0) -> str:
+async def get_llm_choice(prompt: str, client: OpenAI, retries: int = 3, delay: float = 2.0) -> str:
     for attempt in range(1, retries + 1):
         try:
             response = await client.beta.chat.completions.parse(

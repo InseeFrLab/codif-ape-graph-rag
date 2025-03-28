@@ -1,11 +1,12 @@
 import asyncio
 import logging
 
-from classify import classify_activities_batch_async, classify_activity_async
-from llm.client import get_llm_client_async
+from classify import classify_activities_batch, classify_activity
+from llm.client import get_llm_client
+from utils.logging import configure_logging
 from vector_db.loaders import get_vector_db
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+configure_logging()
 logger = logging.getLogger(__name__)
 
 activities = [
@@ -17,19 +18,19 @@ activities = [
 
 async def main():
     db = get_vector_db()
-    async with get_llm_client_async() as client:
-        results = await classify_activities_batch_async(activities, db, client)
+    async with get_llm_client() as client:
+        results = await classify_activities_batch(activities, db, client)
         for res in results:
             logger.info("✅ %s : %s", res["activity"], res["code_ape"])
 
 
 async def classify_one():
     db = get_vector_db()
-    async with get_llm_client_async() as client:
+    async with get_llm_client() as client:
         query = "Je suis loueur de meublés non professionnel"
-        code = await classify_activity_async(query, db, client)
+        code = await classify_activity(query, db, client)
         logger.info("✅ Code APE : %s", code)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(classify_one())

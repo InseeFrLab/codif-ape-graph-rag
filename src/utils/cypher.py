@@ -19,11 +19,7 @@ def create_parent_child_relationships(graph: Neo4jGraph):
     logger.info("✅ Relationships created")
 
 
-def count_children(graph: Neo4jGraph, code: str) -> int:
-    return asyncio.run(count_children_async())
-
-
-async def count_children_async(graph: Neo4jGraph, code: str) -> int:
+async def count_children(graph: Neo4jGraph, code: str) -> int:
     query = f"""
     MATCH (n)
     WHERE n.PARENT_CODE = '{code}'

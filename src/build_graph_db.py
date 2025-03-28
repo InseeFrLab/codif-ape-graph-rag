@@ -6,9 +6,11 @@ from constants.graph_db import EMBEDDING_MODEL
 from constants.paths import NOTICES_PATH
 from utils.cypher import create_parent_child_relationships
 from utils.data import load_notices
+from utils.logging import configure_logging
 from vector_db.loaders import create_vector_db, get_embedding_model, setup_graph
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+configure_logging()
+
 logger = logging.getLogger(__name__)
 
 COLUMNS_TO_KEEP = ["ID", "CODE", "NAME", "PARENT_ID", "PARENT_CODE", "LEVEL", "FINAL", "text_content"]
