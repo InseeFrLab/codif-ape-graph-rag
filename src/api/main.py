@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from api.routes import hierarchical_rag  # flat_embeddings, hierarchical_embeddings, flat_rag
+from api.routes import flat_embeddings, flat_rag, hierarchical_embeddings, hierarchical_rag
 from utils.logging import configure_logging
 from vector_db.loaders import get_vector_db
 
@@ -24,9 +24,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Codif APE Classifier API", version="1.0.0", lifespan=lifespan)
-# app.include_router(flat_embeddings.router)
-# app.include_router(hierarchical_embeddings.router)
-# app.include_router(flat_rag.router)
+app.include_router(flat_embeddings.router)
+app.include_router(hierarchical_embeddings.router)
+app.include_router(flat_rag.router)
 app.include_router(hierarchical_rag.router)
 
 
