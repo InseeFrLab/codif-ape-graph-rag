@@ -1,6 +1,10 @@
+import logging
 import os
 
+import pandas as pd
 import s3fs
+
+logger = logging.getLogger(__name__)
 
 
 def get_file_system(token=None) -> s3fs.S3FileSystem:
@@ -31,3 +35,10 @@ def get_file_system(token=None) -> s3fs.S3FileSystem:
         options["token"] = token
 
     return s3fs.S3FileSystem(**options)
+
+
+def load_notices(parquet_path: str, columns: list) -> pd.DataFrame:
+    logger.info("📄 Loading Parquet data from: %s", parquet_path)
+    fs = get_file_system()
+    df = pd.read_parquet(parquet_path, filesystem=fs)
+    return df[columns]

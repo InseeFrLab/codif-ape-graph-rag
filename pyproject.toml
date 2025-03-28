@@ -5,18 +5,10 @@ description = "To add"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "langchain-core",
-    "langchain-neo4j",
-    "langchain_huggingface",
-    "openpyxl",
-    "pandas",
-    "pre-commit",
-    "ruff",
-    "xlrd",
-    "s3fs",
-    "duckdb",
     "pyarrow>=19.0.1",
     "langchain-community>=0.3.20",
+    "openai>=1.69.0",
+    "pre-commit>=4.2.0",
 ]
 authors = [
   {name="Thomas Faria", email="thomas.faria@insee.fr"}

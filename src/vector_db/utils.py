@@ -1,9 +1,10 @@
+import asyncio
 from typing import List
 
 from langchain.schema import Document
 from langchain_neo4j import Neo4jVector
 
-from utils.cypher import count_children
+from utils.cypher import count_children_async
 
 
 def dicts_to_documents(results: List[dict]) -> List[Document]:
@@ -18,15 +19,25 @@ def dicts_to_documents(results: List[dict]) -> List[Document]:
 
 
 def retrieve_docs_for_code(code: str, query_text: str, db: Neo4jVector) -> List[Document]:
-    if count_children(db, code) > 5:
-        return db.similarity_search(f"query : {query_text}", k=5, filter={"PARENT_CODE": code})
+    return asyncio.run(retrieve_docs_for_code_async())
+
+
+async def retrieve_docs_for_code_async(code: str, query_text: str, db: Neo4jVector) -> List[Document]:
+    """
+    Async version to retrieve APE code child documents, using similarity search or direct query.
+    """
+    if await count_children_async(db, code) > 5:
+        return await db.asimilarity_search(f"query : {query_text}", k=5, filter={"PARENT_CODE": code})
     else:
-        raw_results = db.query(f"""
+        raw = await asyncio.to_thread(
+            db.query,
+            f"""
             MATCH (n)
             WHERE n.PARENT_CODE = '{code}'
             RETURN n
-        """)
-        return dicts_to_documents(raw_results)
+        """,
+        )
+        return dicts_to_documents(raw)
 
 
 def is_final_code(code: str, documents: List[Document]) -> bool:
