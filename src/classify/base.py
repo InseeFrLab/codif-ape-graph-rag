@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -14,6 +15,8 @@ class BaseClassifier(ABC):
     async def classify_one(self, query: str) -> str:
         pass
 
-    @abstractmethod
     async def classify_batch(self, queries: List[str]) -> List[dict]:
-        pass
+        tasks = [self.classify_one(q) for q in queries]
+        raw_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        return [{"code_ape": code if not isinstance(code, Exception) else "ERROR"} for act, code in zip(queries, raw_results)]

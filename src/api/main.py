@@ -24,10 +24,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Codif APE Classifier API", version="1.0.0", lifespan=lifespan)
-app.include_router(flat_embeddings.router)
-app.include_router(hierarchical_embeddings.router)
-app.include_router(flat_rag.router)
-app.include_router(hierarchical_rag.router)
+
+routers = [flat_rag.router, hierarchical_rag.router, flat_embeddings.router, hierarchical_embeddings.router]
+
+for r in routers:
+    app.include_router(r)
 
 
 @app.get("/health")

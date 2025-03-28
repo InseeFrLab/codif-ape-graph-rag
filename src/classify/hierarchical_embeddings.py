@@ -1,6 +1,4 @@
-import asyncio
 import logging
-from typing import List
 
 from classify.base import BaseClassifier
 from vector_db.utils import is_final_code, retrieve_docs_for_code
@@ -28,9 +26,3 @@ class EmbeddingHierarchicalClassifier(BaseClassifier):
         except Exception as e:
             logger.exception("❌ Erreur classification : %s", e)
             return "ERROR"
-
-    async def classify_batch(self, queries: List[str]) -> List[dict]:
-        tasks = [self.classify_one(q) for q in queries]
-        raw_results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        return [{"code_ape": code if not isinstance(code, Exception) else "ERROR"} for act, code in zip(queries, raw_results)]
