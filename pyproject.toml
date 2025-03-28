@@ -9,10 +9,23 @@ dependencies = [
     "langchain-community>=0.3.20",
     "openai>=1.69.0",
     "pre-commit>=4.2.0",
+    "langchain-neo4j>=0.4.0",
+    "pandas>=2.2.3",
+    "s3fs>=2024.12.0",
+    "langchain-huggingface>=0.1.2",
 ]
 authors = [
   {name="Thomas Faria", email="thomas.faria@insee.fr"}
 ]
 
+[dependency-groups]
+dev = [
+    "ruff>=0.11.0",
+    "pre-commit>=4.2.0",
+]
+
 [tool.ruff]
 line-length = 130
+
+[tool.uv]
+default-groups = ["dev"]
