@@ -1,0 +1,3 @@
+[submodule "src/codif-ape-train"]
+	path = src/codif-ape-train
+	url = https://github.com/InseeFrLab/codif-ape-train.git

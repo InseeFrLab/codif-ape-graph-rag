@@ -16,6 +16,7 @@ dependencies = [
     "uvicorn>=0.34.0",
     "fastapi>=0.115.12",
     "streamlit>=1.44.0",
+    "codif-ape-train",
 ]
 authors = [
   {name="Thomas Faria", email="thomas.faria@insee.fr"}
@@ -27,8 +28,14 @@ dev = [
     "pre-commit>=4.2.0",
 ]
 
+[tool.setuptools]
+packages = ["src", "app"]
+
 [tool.ruff]
 line-length = 130
 
 [tool.uv]
 default-groups = ["dev"]
+
+[tool.uv.sources]
+codif-ape-train = { path = "src/codif-ape-train" }
