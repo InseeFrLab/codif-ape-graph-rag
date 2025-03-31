@@ -1,5 +1,6 @@
 import logging
 
+import torch
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_neo4j import Neo4jGraph, Neo4jVector
 
@@ -25,9 +26,17 @@ def setup_graph() -> Neo4jGraph:
 
 def get_embedding_model(model_name: str) -> HuggingFaceEmbeddings:
     """Initialize the HuggingFace embedding model."""
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    if device == "cpu":
+        logger.info("No GPU found: running on CPU. The embedding step might be slow 🫠")
+    elif device == "cuda":
+        logger.info("Running on GPU 🚀")
+
     return HuggingFaceEmbeddings(
         model_name=model_name,
-        model_kwargs={"device": "cuda"},
+        model_kwargs={"device": device},
         encode_kwargs={"normalize_embeddings": True},
         show_progress=False,
     )
