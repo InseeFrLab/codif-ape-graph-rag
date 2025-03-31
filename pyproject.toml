@@ -28,8 +28,14 @@ dev = [
     "pre-commit>=4.2.0",
 ]
 
+[tool.setuptools]
+packages = ["src", "app"]
+
 [tool.ruff]
 line-length = 130
 
 [tool.uv]
 default-groups = ["dev"]
+
+[tool.uv.sources]
+codif-ape-train = { path = "src/codif-ape-train" }
