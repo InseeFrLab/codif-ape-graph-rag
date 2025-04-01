@@ -29,4 +29,4 @@ class RAGHierarchicalClassifier(BaseClassifier):
 
         except Exception as e:
             logger.exception("❌ Erreur classification : %s", e)
-            return "ERROR"
+            raise

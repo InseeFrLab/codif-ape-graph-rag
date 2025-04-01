@@ -15,6 +15,7 @@ class EmbeddingHierarchicalClassifier(BaseClassifier):
 
             for level in range(2, 6):
                 retrieved_docs = await retrieve_docs_for_code(selected_code, query, self.db)
+                logger.info("🔍 Niveau %d : %d documents", level, len(retrieved_docs))
                 selected_code = retrieved_docs[0].metadata["CODE"]
                 logger.info("📌 Niveau %d : %s", level, selected_code)
 
@@ -25,4 +26,4 @@ class EmbeddingHierarchicalClassifier(BaseClassifier):
 
         except Exception as e:
             logger.exception("❌ Erreur classification : %s", e)
-            return "ERROR"
+            raise

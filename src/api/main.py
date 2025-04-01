@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
     configure_logging()
     logger = logging.getLogger(__name__)
     logger.info("🚀 Starting API lifespan")
-    app.state.db = get_vector_db()
+    app.state.db = await get_vector_db()
     yield
     logger.info("🛑 Shutting down API lifespan")
 

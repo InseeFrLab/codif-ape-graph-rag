@@ -27,8 +27,8 @@ def setup_graph() -> Neo4jGraph:
 def get_embedding_model(model_name: str) -> OpenAIEmbeddings:
     """Initialize the embedding model."""
     return OpenAIEmbeddings(
-        open=model_name,
-        openai_base_url=URL_EMBEDDING_API,
+        model=model_name,
+        openai_api_base=URL_EMBEDDING_API,
         openai_api_key="EMPTY",
     )
 
