@@ -8,6 +8,7 @@ from utils.cypher import create_parent_child_relationships
 from utils.data import load_notices
 from utils.logging import configure_logging
 from vector_db.loaders import create_vector_db, get_embedding_model, setup_graph
+from vector_db.utils import truncate_docs_to_max_tokens
 
 configure_logging()
 
@@ -15,11 +16,15 @@ logger = logging.getLogger(__name__)
 
 COLUMNS_TO_KEEP = ["ID", "CODE", "NAME", "PARENT_ID", "PARENT_CODE", "LEVEL", "FINAL", "text_content"]
 
+MAX_TOKENS = 512
+
 
 def run_pipeline():
     df = load_notices(NOTICES_PATH, COLUMNS_TO_KEEP)
 
     docs = DataFrameLoader(df, page_content_column="text_content").load()
+
+    docs = truncate_docs_to_max_tokens(docs, MAX_TOKENS)
 
     emb_model = get_embedding_model(EMBEDDING_MODEL)
     _ = create_vector_db(docs, emb_model)
