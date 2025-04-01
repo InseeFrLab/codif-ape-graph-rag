@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 
 def create_vector_db(docs, embedding_model) -> Neo4jVector:
     logger.info("🧠 Creating Neo4j vector DB with embeddings")
-    return Neo4jVector.from_documents(docs, embedding_model, url=NEO4J_URL, username=NEO4J_USERNAME, password=NEO4J_PWD)
+    return Neo4jVector.from_documents(
+        docs, embedding_model, url=NEO4J_URL, username=NEO4J_USERNAME, password=NEO4J_PWD, ids=[f"{i}" for i in range(len(docs))]
+    )
 
 
 def setup_graph() -> Neo4jGraph:
