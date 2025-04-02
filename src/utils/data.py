@@ -52,11 +52,33 @@ def remove_nodes_one_child(df: pd.DataFrame) -> pd.DataFrame:
         The DataFrame with the intermediate parent nodes removed.
 
     """
-    # Need to do it level by level
-    for level in [3, 2]:
+    # For level 1
+    parent_counts = df["PARENT_CODE"].value_counts()
+    parents_one_child = [code for code in parent_counts[parent_counts == 1].index if len(code.replace(".", "")) == 1]
+    child_rows = df[(df["PARENT_CODE"].isin(parents_one_child)) & ~df["FINAL"]].set_index("CODE")
+
+    while not child_rows.empty:
+        child_to_parent = child_rows["PARENT_CODE"].to_dict()
+        raw_parent_ids = child_rows["PARENT_ID"].to_dict()
+
+        child_to_parent_id = {k.replace(".", ""): v.replace(".", "") for k, v in raw_parent_ids.items()}
+
+        df["PARENT_CODE"] = df["PARENT_CODE"].replace(child_to_parent)
+        df["PARENT_ID"] = df["PARENT_ID"].replace(child_to_parent_id)
+
+        df = df[~df["CODE"].isin(child_rows.index)]
+
+        for code in child_rows.index:
+            logger.info(f"🚮 Removed intermediate parent node: {code}")
+
         parent_counts = df["PARENT_CODE"].value_counts()
-        parents_one_child = parent_counts[parent_counts == 1].index
-        parents_one_child = [code for code in parents_one_child if len(code.replace(".", "")) == level]
+        parents_one_child = [code for code in parent_counts[parent_counts == 1].index if len(code.replace(".", "")) == 1]
+        child_rows = df[(df["PARENT_CODE"].isin(parents_one_child)) & ~df["FINAL"]].set_index("CODE")
+
+    # Need to do it level by level
+    for level in range(3, 1, -1):
+        parent_counts = df["PARENT_CODE"].value_counts()
+        parents_one_child = [code for code in parent_counts[parent_counts == 1].index if len(code.replace(".", "")) == level]
 
         parent_rows = df[df["CODE"].isin(parents_one_child)].set_index("CODE")
 
@@ -79,6 +101,8 @@ def remove_nodes_one_child(df: pd.DataFrame) -> pd.DataFrame:
 def load_notices(parquet_path: str, columns: list) -> pd.DataFrame:
     logger.info("📄 Loading Parquet data from: %s", parquet_path)
     fs = get_file_system()
+    # parquet_path = NOTICE_PATH
     df = pd.read_parquet(parquet_path, filesystem=fs)
+    # df = df[COLUMNS_TO_KEEP]
     df = remove_nodes_one_child(df)
     return df[columns]
