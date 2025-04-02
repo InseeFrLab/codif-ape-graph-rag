@@ -63,8 +63,8 @@ def remove_nodes_one_child(df: pd.DataFrame) -> pd.DataFrame:
 
         child_to_parent_id = {k.replace(".", ""): v.replace(".", "") for k, v in raw_parent_ids.items()}
 
-        df["PARENT_CODE"] = df["PARENT_CODE"].replace(child_to_parent)
-        df["PARENT_ID"] = df["PARENT_ID"].replace(child_to_parent_id)
+        df.loc[:, "PARENT_CODE"] = df["PARENT_CODE"].replace(child_to_parent)
+        df.loc[:, "PARENT_ID"] = df["PARENT_ID"].replace(child_to_parent_id)
 
         df = df[~df["CODE"].isin(child_rows.index)]
 
