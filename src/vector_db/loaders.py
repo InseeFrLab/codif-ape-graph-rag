@@ -1,17 +1,19 @@
 import logging
 
-import torch
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_neo4j import Neo4jGraph, Neo4jVector
+from langchain_openai import OpenAIEmbeddings
 
-from constants.graph_db import EMBEDDING_MODEL, NEO4J_PWD, NEO4J_URL, NEO4J_USERNAME
+# from vector_db.openai_embeddings import CustomOpenAIEmbeddings
+from constants.graph_db import EMBEDDING_MODEL, NEO4J_PWD, NEO4J_URL, NEO4J_USERNAME, URL_EMBEDDING_API
 
 logger = logging.getLogger(__name__)
 
 
 def create_vector_db(docs, embedding_model) -> Neo4jVector:
     logger.info("🧠 Creating Neo4j vector DB with embeddings")
-    return Neo4jVector.from_documents(docs, embedding_model, url=NEO4J_URL, username=NEO4J_USERNAME, password=NEO4J_PWD)
+    return Neo4jVector.from_documents(
+        docs, embedding_model, url=NEO4J_URL, username=NEO4J_USERNAME, password=NEO4J_PWD, ids=[f"{i}" for i in range(len(docs))]
+    )
 
 
 def setup_graph() -> Neo4jGraph:
@@ -24,25 +26,16 @@ def setup_graph() -> Neo4jGraph:
     )
 
 
-def get_embedding_model(model_name: str) -> HuggingFaceEmbeddings:
-    """Initialize the HuggingFace embedding model."""
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    if device == "cpu":
-        logger.info("No GPU found: running on CPU. The embedding step might be slow 🫠")
-    elif device == "cuda":
-        logger.info("Running on GPU 🚀")
-
-    return HuggingFaceEmbeddings(
-        model_name=model_name,
-        model_kwargs={"device": device},
-        encode_kwargs={"normalize_embeddings": True},
-        show_progress=False,
+def get_embedding_model(model_name: str) -> OpenAIEmbeddings:
+    """Initialize the embedding model."""
+    return OpenAIEmbeddings(
+        model=model_name,
+        openai_api_base=URL_EMBEDDING_API,
+        openai_api_key="EMPTY",
     )
 
 
-def get_vector_db() -> Neo4jVector:
+async def get_vector_db() -> Neo4jVector:
     """Initialize the Neo4jVector Store from existing graph."""
     emb_model = get_embedding_model(EMBEDDING_MODEL)
     graph = setup_graph()

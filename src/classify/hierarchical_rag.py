@@ -16,17 +16,14 @@ class RAGHierarchicalClassifier(BaseClassifier):
             selected_code = await get_llm_choice(prompt, self.client)
             logger.info("📌 Niveau 1 : %s", selected_code)
 
-            for level in range(2, 6):
+            while not is_final_code(selected_code, retrieved_docs):
                 retrieved_docs = await retrieve_docs_for_code(selected_code, query, self.db)
                 prompt = format_prompt(query, retrieved_docs)
                 selected_code = await get_llm_choice(prompt, self.client)
-                logger.info("📌 Niveau %d : %s", level, selected_code)
-
-                if is_final_code(selected_code, retrieved_docs):
-                    break
+                logger.info("📌 Code selected : %s", selected_code)
 
             return selected_code
 
         except Exception as e:
             logger.exception("❌ Erreur classification : %s", e)
-            return "ERROR"
+            raise
