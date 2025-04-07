@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - dockerfile
+      
     tags:
       - "*"
   workflow_dispatch:

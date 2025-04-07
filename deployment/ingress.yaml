@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: codif-ape-graph-rag-streamlit-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "360"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
+spec:
+  tls:
+    - hosts:
+        - codification-ape-graph-rag.lab.sspcloud.fr
+  rules:
+    - host: codification-ape-graph-rag.lab.sspcloud.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: codif-ape-graph-rag-streamlit-service
+                port:
+                  number: 8501
