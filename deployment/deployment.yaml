@@ -32,6 +32,11 @@ spec:
               value: us-east-1
             - name: AUTH_API
               value: "False"
+            - name: NEO4J_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: neo4j
+                  key: NEO_4J_API_KEY
           resources:
             limits:
               cpu: 30000m
