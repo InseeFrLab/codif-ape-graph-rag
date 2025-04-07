@@ -22,10 +22,12 @@ RUN uv sync
 # Copy the rest of the code
 COPY . .
 
+RUN pip install supervisor
+
 # Copy supervisord config
 COPY supervisord.conf /etc/supervisord.conf
 
 # Expose ports: 8501 for Streamlit, 5000 for FastAPI
 EXPOSE 8501 5000
 
-CMD ["/usr/local/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]

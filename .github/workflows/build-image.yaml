@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dockerfile
+      - cd
     tags:
       - "*"
   workflow_dispatch:
