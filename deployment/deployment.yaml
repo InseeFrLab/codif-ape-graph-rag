@@ -1,0 +1,41 @@
+# Creating MLflow deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codif-ape-graph-rag-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codif-ape-graph-rag-api-deployment
+  template:
+    metadata:
+      labels:
+        app: codif-ape-graph-rag-api-deployment
+    spec:
+      containers:
+        - name: codif-ape-graph-rag-api
+          image: meilametayebjee/codification-ape-graph-rag-api:main
+          imagePullPolicy: Always
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: my-s3-creds
+                  key: accessKey
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: my-s3-creds
+                  key: secretKey
+            - name: AWS_DEFAULT_REGION
+              value: us-east-1
+            - name: AUTH_API
+              value: "False"
+          resources:
+            limits:
+              cpu: 30000m
+              memory: 50Gi
+            requests:
+              cpu: 100m
+              memory: 2Gi

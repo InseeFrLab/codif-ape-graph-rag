@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: codif-ape-graph-rag-webapp
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/InseeFrLab/codif-ape-graph-rag.git
+    targetRevision: main
+    path: deployment
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: projet-ape
+  syncPolicy:
+    automated:
+      selfHeal: true
