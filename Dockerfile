@@ -29,5 +29,5 @@ EXPOSE 8501 5000
 
 ENV PYTHONPATH=src/
 # CMD ["uv", "run", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "5000"]
-CMD ["uv", "run", "streamlit", "run", "app/main.py"]
-# CMD ["supervisord", "-c", "supervisord.conf"]
+# CMD ["uv", "run", "streamlit", "run", "app/main.py"]
+CMD ["supervisord", "-c", "supervisord.conf"]
