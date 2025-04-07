@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: codif-ape-graph-rag-api
-          image: meilametayebjee/codification-ape-graph-rag-api:main
+          image: meilametayebjee/codification-ape-graph-rag-api:cd
           imagePullPolicy: Always
           env:
             - name: AWS_ACCESS_KEY_ID
