@@ -36,7 +36,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: neo4j
-                  key: NEO_4J_API_KEY
+                  key: apiKey
           resources:
             limits:
               cpu: 30000m
