@@ -13,13 +13,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install uv (if needed)
 COPY uv.lock pyproject.toml ./
-RUN pip install uv && uv pip install --system --no-deps .
+# Install uv package manager
+RUN pip install uv
+
+# Sync dependencies
+RUN uv sync
 
 # Copy the rest of the code
 COPY . .
-
-# Install supervisord
-RUN pip install supervisor
 
 # Copy supervisord config
 COPY supervisord.conf /etc/supervisord.conf
