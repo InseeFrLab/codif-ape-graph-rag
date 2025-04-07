@@ -1,22 +1,23 @@
-# Creating MLflow deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: codif-ape-graph-rag-api-deployment
+  name: codif-ape-graph-rag-streamlit-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: codif-ape-graph-rag-api-deployment
+      app: codif-ape-graph-rag-streamlit
   template:
     metadata:
       labels:
-        app: codif-ape-graph-rag-api-deployment
+        app: codif-ape-graph-rag-streamlit
     spec:
       containers:
-        - name: codif-ape-graph-rag-api
+        - name: streamlit
           image: meilametayebjee/codification-ape-graph-rag-api:cd
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8501
           env:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
@@ -30,8 +31,6 @@ spec:
                   key: secretKey
             - name: AWS_DEFAULT_REGION
               value: us-east-1
-            - name: AUTH_API
-              value: "False"
             - name: NEO4J_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -39,8 +38,8 @@ spec:
                   key: apiKey
           resources:
             limits:
-              cpu: 30000m
-              memory: 50Gi
+              cpu: "1000m"
+              memory: "2Gi"
             requests:
-              cpu: 100m
-              memory: 2Gi
+              cpu: "100m"
+              memory: "512Mi"
