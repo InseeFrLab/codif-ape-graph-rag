@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     logger.info("🛑 Shutting down API lifespan")
 
 
-app = FastAPI(title="Codif APE Classifier API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Codif APE Classifier API", version="1.0.0", lifespan=lifespan, root_path="/api")
 
 routers = [flat_rag.router, hierarchical_rag.router, flat_embeddings.router, hierarchical_embeddings.router]
 
