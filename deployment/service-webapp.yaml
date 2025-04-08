@@ -10,4 +10,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: codif-ape-graph-rag-streamlit
+    app: codif-ape-graph-rag

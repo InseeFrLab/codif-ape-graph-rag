@@ -1,7 +1,7 @@
 import httpx
 import streamlit as st
 
-API_BASE_URL = "http://localhost:5000"  # or wherever your FastAPI is running
+API_BASE_URL = "http://localhost:5000/api"  # or wherever your FastAPI is running
 
 st.set_page_config(page_title="Codif APE Classifier", layout="centered")
 

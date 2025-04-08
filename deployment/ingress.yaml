@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: codif-ape-graph-rag-streamlit-ingress
+  name: codif-ape-graph-rag-ingress
   annotations:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "360"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
@@ -13,6 +13,13 @@ spec:
     - host: codification-ape-graph-rag.lab.sspcloud.fr
       http:
         paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: codif-ape-graph-rag-fastapi-service
+                port:
+                  number: 5000
           - path: /
             pathType: Prefix
             backend:

@@ -1,23 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: codif-ape-graph-rag-streamlit
+  name: codif-ape-graph-rag
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: codif-ape-graph-rag-streamlit
+      app: codif-ape-graph-rag
   template:
     metadata:
       labels:
-        app: codif-ape-graph-rag-streamlit
+        app: codif-ape-graph-rag
     spec:
       containers:
         - name: streamlit
-          image: meilametayebjee/codification-ape-graph-rag-api:cd
+          image: meilametayebjee/codification-ape-graph-rag-api:main
           imagePullPolicy: Always
           ports:
             - containerPort: 8501
+            - containerPort: 5000
           env:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
