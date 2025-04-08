@@ -16,9 +16,9 @@ spec:
         - name: streamlit
           image: meilametayebjee/codification-ape-graph-rag-api:latest
           imagePullPolicy: Always
-5000          ports:
+          ports:
             - containerPort: 8501
-            - containerPort: 
+            - containerPort: 5000
           env:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
