@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: streamlit
-          image: meilametayebjee/codification-ape-graph-rag-api:argo-double-deployment
+          image: meilametayebjee/codification-ape-graph-rag-api:main
           imagePullPolicy: Always
           ports:
             - containerPort: 8501
