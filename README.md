@@ -1,22 +1,23 @@
 # codif-ape-graph-rag
 
 
-## Local run 🏛️ 
+## Local run 🏛️
 You need to install to first install [**uv**](https://github.com/astral-sh/uv), using for instance `pip install uv` if applicable.
 
 Please reach out to us to get our [**Neo4J**](https://neo4j.com/) graph database's password. Then run the following commands to locally launch the API:
 
 ```bash
-cd src
-. ./setup.sh
+. setup.sh
 export NEO4J_API_KEY= [NEO4J PASSWORD]
-uvicorn api.main:app --reload --host 0.0.0.0 --port 5000
+cd src
+uv run uvicorn api.main:app --host 0.0.0.0 --port 5000
 ```
 
-To locally launch the web application, run the following command, on another terminal and from the root path of the repo:
+To locally launch the web application, run the following command, on another terminal:
 
 ```bash
-uv run streamlit run app/main.py
+cd src
+uv run streamlit run main.py
 ```
 
 ## Deployment 🚀
@@ -30,4 +31,3 @@ We used:
 - and **ArgoCD** for continous deployment 🚀
 
 We used our [datalab](https://datalab.sspcloud.fr/) powered by [**Onyxia**](https://www.onyxia.sh/) and a **Kubernetes** cluster to deploy the application.
-
