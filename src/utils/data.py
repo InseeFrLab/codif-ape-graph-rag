@@ -106,3 +106,20 @@ def load_notices(parquet_path: str, columns: list) -> pd.DataFrame:
     # df = df[COLUMNS_TO_KEEP]
     df = remove_nodes_one_child(df)
     return df[columns]
+
+
+def get_df_naf() -> pd.DataFrame:
+    """
+    Get detailed NAF data (lvl5).
+
+    Args:
+        path (str): Path to the data.
+
+    Returns:
+        pd.DataFrame: Detailed NAF data.
+    """
+    fs = get_file_system()
+    path = "projet-ape/data/naf2025_extended.parquet"
+    df = pd.read_parquet(path, filesystem=fs)
+
+    return df
