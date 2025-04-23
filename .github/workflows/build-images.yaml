@@ -3,12 +3,12 @@ name: Build Images
 on:
   push:
     branches:
-      - main
-      - test-double-images
+      - "main"
+      - "test-double-images"
     tags:
       - "*"
     paths:
-      - pyproject.toml
+      - "pyproject.toml"
   workflow_dispatch:
 
 jobs:
