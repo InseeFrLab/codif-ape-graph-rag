@@ -1,4 +1,4 @@
-FROM inseefrlab/onyxia-python-vscode:py3.12.9
+FROM inseefrlab/onyxia-vscode-python:py3.12.9
 
 # Set working directory
 WORKDIR /streamlit
