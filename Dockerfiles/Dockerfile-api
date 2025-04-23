@@ -1,0 +1,17 @@
+FROM inseefrlab/onyxia-python-vscode:py3.12.9
+
+ENV TIMEOUT=3600
+
+# copy the code in api/
+ADD . /api
+
+# Set working directory
+WORKDIR /api/src
+
+# Sync dependencies
+RUN uv sync --frozen
+
+# Expose port 5000
+EXPOSE 5000
+
+CMD ["uv", "run", "uvicorn", "api.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "5000", "--timeout-graceful-shutdown", "3600"]
