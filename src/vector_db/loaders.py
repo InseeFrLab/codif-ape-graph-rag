@@ -32,6 +32,7 @@ def get_embedding_model(model_name: str) -> OpenAIEmbeddings:
         model=model_name,
         openai_api_base=URL_EMBEDDING_API,
         openai_api_key="EMPTY",
+        tiktoken_enabled=False,
     )
 
 
