@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "main"
-      - "test-double-images"
     tags:
       - "*"
     paths:
