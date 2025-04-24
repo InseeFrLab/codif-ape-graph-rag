@@ -1,10 +1,10 @@
 FROM inseefrlab/onyxia-vscode-python:py3.12.9
 
-# copy the code in streamlit/
-ADD . /app
-
 # Set working directory
 WORKDIR /app
+
+# copy the code in streamlit/
+ADD . /app
 
 # Sync dependencies
 RUN uv sync --locked

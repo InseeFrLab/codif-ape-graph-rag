@@ -9,7 +9,7 @@ WORKDIR /app
 ADD . /app
 
 # Sync dependencies
-RUN uv sync --frozen
+RUN uv sync --locked
 
 # Expose port 5000
 EXPOSE 5000
