@@ -2,6 +2,8 @@ import httpx
 
 import streamlit as st
 
+API_URL = "https://codification-ape-graph-rag-api.lab.sspcloud.fr"
+
 st.set_page_config(page_title="Codif APE Classifier", layout="centered")
 
 st.title("🔎 Codif APE Classifier")
@@ -26,7 +28,7 @@ if st.button("Classify"):
         with st.spinner("Classifying..."):
             try:
                 response = httpx.get(
-                    f"https://codification-ape-graph-rag.lab.sspcloud.fr/{classifier}/classify",
+                    f"{API_URL}/{classifier}/classify",
                     params={"query": query},
                     timeout=30,
                 )
@@ -48,9 +50,7 @@ if st.button("Batch Classify"):
     else:
         with st.spinner("Classifying batch..."):
             try:
-                response = httpx.post(
-                    f"https://codification-ape-graph-rag.lab.sspcloud.fr/{classifier}/batch", json={"queries": lines}, timeout=60
-                )
+                response = httpx.post(f"{API_URL}/{classifier}/batch", json={"queries": lines}, timeout=60)
                 response.raise_for_status()
                 results = response.json()
                 st.table(results)
