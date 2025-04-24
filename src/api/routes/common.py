@@ -17,7 +17,7 @@ def build_classification_router(prefix: str, tag: str, classifier_cls: BaseClass
         code_ape: str
 
         class Config:
-            json_schema_extra = {"example": {"code_ape": "1071C"}}
+            json_schema_extra = {"example": {"code_ape": "10.71C"}}
 
     @router.get(
         "/classify",

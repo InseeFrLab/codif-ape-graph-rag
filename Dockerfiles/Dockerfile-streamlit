@@ -1,0 +1,18 @@
+FROM inseefrlab/onyxia-vscode-python:py3.12.9
+
+# Set working directory
+WORKDIR /app
+
+# copy the code in streamlit/
+ADD . /app
+
+# Sync dependencies
+RUN uv sync --locked
+
+# Expose port 8501
+EXPOSE 8501
+
+# Set working directory to run streamlit
+WORKDIR /app/src
+
+CMD ["uv", "run", "streamlit", "run", "streamlit/main.py"]

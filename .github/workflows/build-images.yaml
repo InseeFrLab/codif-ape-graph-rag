@@ -1,17 +1,29 @@
-name: Image Build
+name: Build Images
 
 on:
   push:
     branches:
-      - main
-      
+      - "main"
     tags:
       - "*"
+    paths:
+      - "pyproject.toml"
+      - "Dockerfiles/**"
+      - "src/**"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 jobs:
   image-build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./Dockerfiles/Dockerfile-streamlit
+            image: meilametayebjee/codification-ape-graph-rag-streamlit
+          - dockerfile: ./Dockerfiles/Dockerfile-api
+            image: meilametayebjee/codification-ape-graph-rag-api
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +34,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: meilametayebjee/codification-ape-graph-rag-api
+          images: ${{ matrix.image }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=ref,event=branch
@@ -45,6 +57,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
