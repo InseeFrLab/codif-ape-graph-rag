@@ -9,6 +9,9 @@ on:
       - "*"
     paths:
       - "pyproject.toml"
+      - "Dockerfiles/**"
+      - "src/**"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 jobs:
