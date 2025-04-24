@@ -2,14 +2,14 @@ FROM inseefrlab/onyxia-vscode-python:py3.12.9
 
 ENV TIMEOUT=3600
 
-# copy the code in api/
-ADD . /app
-
 # Set working directory
 WORKDIR /app
 
+# copy the code in api/
+ADD . /app
+
 # Sync dependencies
-RUN uv sync --locked
+RUN uv sync --frozen
 
 # Expose port 5000
 EXPOSE 5000
