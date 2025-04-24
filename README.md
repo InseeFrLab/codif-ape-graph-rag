@@ -8,7 +8,7 @@ Please reach out to us to get our [**Neo4J**](https://neo4j.com/) graph database
 
 ```bash
 . setup.sh
-export NEO4J_API_KEY= [NEO4J PASSWORD]
+export NEO4J_API_KEY=[NEO4J PASSWORD]
 cd src
 uv run uvicorn api.main:app --host 0.0.0.0 --port 5000
 ```

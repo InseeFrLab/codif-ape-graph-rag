@@ -20,7 +20,7 @@ async def get_llm_choice(prompt: str, client: OpenAI, retries: int = 3, delay: f
                     {"role": "user", "content": prompt},
                 ],
                 response_format=Response,
-                extra_body={"guided_decoding_backend": "guidance"},
+                # extra_body={"guided_decoding_backend": "guidance"}, Guidance doesn't work with mistral from 0.8.4 vllm
             )
             return response.choices[0].message.parsed.code
 
