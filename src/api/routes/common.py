@@ -44,8 +44,11 @@ def build_classification_router(prefix: str, tag: str, classifier_cls: BaseClass
         try:
             async with get_llm_client() as client:
                 classifier = classifier_cls(request.app.state.db, client)
-                results = await classifier.classify_batch(req.queries)
+                results = await classifier.classify_batch(req.queries, cancel_check=request.is_disconnected)
                 return results
+        except HTTPException:
+            raise
+
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
