@@ -27,6 +27,7 @@ configure_logging()
 logger = logging.getLogger(__name__)
 
 API_URL = "https://codification-ape-graph-rag-api.lab.sspcloud.fr"
+TIMEOUT = 3600
 
 
 async def evaluate_method(
@@ -49,7 +50,6 @@ async def evaluate_method(
         elapsed_td = datetime.timedelta(seconds=elapsed_seconds)
 
         response.raise_for_status()
-
         preds = process_response(response.json())
         preds_levels = get_all_levels(preds, df_naf, "code_ape")
         save_predictions(preds, method)
@@ -66,8 +66,22 @@ async def evaluate_method(
         logger.info(f"✅ Finished evaluation for '{method}'")
         return preds_levels
 
+    except httpx.TimeoutException:
+        logger.error(
+            f"⏳ Timeout during '{method}': Request took more than {humanize.precisedelta(datetime.timedelta(seconds=TIMEOUT))}"
+        )
+        return pd.DataFrame()
+
+    except httpx.HTTPStatusError as http_exc:
+        logger.error(f"🚨 HTTP error during '{method}': {http_exc.response.status_code} - {http_exc.response.text}")
+        return pd.DataFrame()
+
+    except httpx.RequestError as req_exc:
+        logger.error(f"📡 Network error during '{method}': {type(req_exc).__name__} - {req_exc}")
+        return pd.DataFrame()
+
     except Exception as e:
-        logger.error(f"❌ Error during '{method}': {e}")
+        logger.error(f"❌ Unexpected error during '{method}': {type(e).__name__} - {e}")
         return pd.DataFrame()
 
 
@@ -77,7 +91,7 @@ async def evaluate_all(
     df_naf: pd.DataFrame,
     ground_truth: pd.DataFrame,
 ) -> List[pd.DataFrame]:
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=httpx.Timeout(TIMEOUT)) as client:
         tasks = [evaluate_method(client, method, queries, df_naf, ground_truth) for method in methods]
         return await asyncio.gather(*tasks)
 
@@ -108,7 +122,7 @@ if __name__ == "__main__":
     else:
 
         async def eval_single():
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(TIMEOUT)) as client:
                 return await evaluate_method(client, methods[0], queries, df_naf, ground_truth)
 
         asyncio.run(eval_single())
