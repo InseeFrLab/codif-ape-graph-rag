@@ -31,3 +31,13 @@ We used:
 - and **ArgoCD** for continous deployment 🚀
 
 We used our [datalab](https://datalab.sspcloud.fr/) powered by [**Onyxia**](https://www.onyxia.sh/) and a **Kubernetes** cluster to deploy the application.
+
+
+## Evaluation
+
+In order to run evaluation of different methods you can execute the following commands:
+
+```bash
+export MLFLOW_TRACKING_URI=https://projet-ape-mlflow.user.lab.sspcloud.fr
+uv run evaluate.py --num_samples 1000 --entry_point all
+```

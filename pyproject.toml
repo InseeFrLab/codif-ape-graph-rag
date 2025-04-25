@@ -16,6 +16,7 @@ dependencies = [
     "streamlit>=1.44.0",
     "langchain-openai>=0.3.11",
     "transformers>=4.51.3",
+    "humanize>=4.12.2",
 ]
 authors = [
   {name="Thomas Faria", email="thomas.faria@insee.fr"}

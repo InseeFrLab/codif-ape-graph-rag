@@ -7,11 +7,14 @@ Arguments can be passed using the command line, see --help and parse_args() for 
 """
 
 import asyncio
+import datetime
 import logging
 import os
+import time
 from typing import List
 
 import httpx
+import humanize
 import mlflow
 import pandas as pd
 
@@ -31,19 +34,34 @@ async def evaluate_method(
     method: str,
     queries: List[str],
     df_naf: pd.DataFrame,
+    ground_truth: pd.DataFrame,
 ) -> pd.DataFrame:
     try:
         logger.info(f"🚀 Starting evaluation for '{method}'")
+
+        start_time = time.time()
         response = await client.post(
             f"{API_URL}/{method}/batch",
             json={"queries": queries},
-            timeout=3600,
         )
+        end_time = time.time()
+        elapsed_seconds = end_time - start_time
+        elapsed_td = datetime.timedelta(seconds=elapsed_seconds)
+
         response.raise_for_status()
 
         preds = process_response(response.json())
         preds_levels = get_all_levels(preds, df_naf, "code_ape")
         save_predictions(preds, method)
+
+        with mlflow.start_run():
+            mlflow.log_param("method", method)
+            mlflow.log_param("num_samples", len(preds))
+            mlflow.log_param("elapsed_time", humanize.precisedelta(elapsed_td))
+
+            accs = (preds_levels == ground_truth).mean()
+            for lvl, acc in enumerate(accs, 1):
+                mlflow.log_metric(f"accuracy_lvl_{lvl}", acc)
 
         logger.info(f"✅ Finished evaluation for '{method}'")
         return preds_levels
@@ -53,9 +71,14 @@ async def evaluate_method(
         return pd.DataFrame()
 
 
-async def evaluate_all(methods: List[str], queries: List[str], df_naf: pd.DataFrame) -> List[pd.DataFrame]:
+async def evaluate_all(
+    methods: List[str],
+    queries: List[str],
+    df_naf: pd.DataFrame,
+    ground_truth: pd.DataFrame,
+) -> List[pd.DataFrame]:
     async with httpx.AsyncClient() as client:
-        tasks = [evaluate_method(client, method, queries, df_naf) for method in methods]
+        tasks = [evaluate_method(client, method, queries, df_naf, ground_truth) for method in methods]
         return await asyncio.gather(*tasks)
 
 
@@ -80,25 +103,12 @@ if __name__ == "__main__":
 
     logger.info(f"Evaluating {len(methods)} method(s) with {args.num_samples} samples...")
 
-    with mlflow.start_run():
-        if args.entry_point == "all":
-            results = asyncio.run(evaluate_all(methods, queries, df_naf))
-        else:
+    if args.entry_point == "all":
+        asyncio.run(evaluate_all(methods, queries, df_naf, ground_truth))
+    else:
 
-            async def eval_single():
-                async with httpx.AsyncClient() as client:
-                    return await evaluate_method(client, methods[0], queries, df_naf)
+        async def eval_single():
+            async with httpx.AsyncClient() as client:
+                return await evaluate_method(client, methods[0], queries, df_naf, ground_truth)
 
-            results = [asyncio.run(eval_single())]
-
-    logger.info(results)
-
-    # try:
-    #     evaluate(df_naf, experiment_name, api_inputs, entry_point)
-    # except Exception as e:
-    #     print(f"Error evaluating {entry_point}: {e}")
-
-    #  mlflow.log_param("entry_point", entry_point)
-    #     accs = (preds_levels == ground_truth).mean()
-    #     for lvl, score in enumerate(accs, 1):
-    #         mlflow.log_metric(f"accuracy_lvl_{lvl}", score)
+        asyncio.run(eval_single())

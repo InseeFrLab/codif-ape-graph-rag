@@ -12,7 +12,7 @@ def load_test_data(num_samples: int) -> pd.DataFrame:
 
 
 def get_all_levels(df: pd.DataFrame, df_naf: pd.DataFrame, col: str) -> pd.DataFrame:
-    return df[[col]].merge(df_naf, left_on=col, right_on="APE_NIV5")[df_naf.columns.drop(["APE_NIV5", "LIB_NIV5"])]
+    return df[[col]].merge(df_naf, left_on=col, right_on="APE_NIV5")[df_naf.columns.drop(["LIB_NIV5"])]
 
 
 def process_response(raw_response: List[dict]) -> pd.DataFrame:
