@@ -21,17 +21,28 @@ class BaseClassifier(ABC):
         queries: List[str],
         cancel_check: Optional[Callable[[], Awaitable[bool]]] = None,
     ) -> List[dict]:
-        # This functions allows to stop server side processes if client received a timeout (on veut pas que le LLM continue à tourner alors qu'on a chopper un timeout)
-        # On le wrap pour eviter de changer dans les 4 méthodes
-        async def wrap_classify_one(q: str) -> str:
-            if cancel_check and await cancel_check():
-                raise asyncio.CancelledError("Client disconnected")
-            return await self.classify_one(q)
+        tasks = [asyncio.create_task(self.classify_one(q)) for q in queries]
 
         try:
-            tasks = [wrap_classify_one(q) for q in queries]
-            raw_results = await asyncio.gather(*tasks, return_exceptions=True)
+            # This allows to stop server side processes if client received a timeout
+            # (on veut pas que le LLM continue à tourner alors qu'on a choppé un timeout)
+            while not all(task.done() for task in tasks):
+                if cancel_check and await cancel_check():
+                    for task in tasks:
+                        task.cancel()
+                    raise asyncio.CancelledError("Client disconnected")
+                await asyncio.sleep(0.2)
+
+            results = []
+            for query, task in zip(queries, tasks):
+                try:
+                    code = await task
+                except asyncio.CancelledError:
+                    code = "CANCELLED"
+                except Exception:
+                    code = "ERROR"
+                results.append({"code_ape": code})
+            return results
+
         except asyncio.CancelledError:
             raise HTTPException(status_code=499, detail="Client disconnected")
-
-        return [{"code_ape": code if not isinstance(code, Exception) else "ERROR"} for act, code in zip(queries, raw_results)]
