@@ -18,10 +18,11 @@ logger = logging.getLogger(__name__)
 
 COLUMNS_TO_KEEP = ["ID", "CODE", "NAME", "PARENT_ID", "PARENT_CODE", "LEVEL", "FINAL", "text_content"]
 
-MAX_TOKENS = 512
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", None)
 if EMBEDDING_MODEL is None:
     raise ValueError("EMBEDDING_MODEL environment variable must be set.")
+
+MAX_TOKENS = int(os.environ.get("MAX_TOKENS", 32000))
 
 
 def run_pipeline():
