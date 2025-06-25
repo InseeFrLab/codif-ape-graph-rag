@@ -18,6 +18,7 @@ dependencies = [
     "transformers>=4.51.3",
     "humanize>=4.12.2",
     "langfuse>=3.0.5",
+    "python-dotenv>=1.1.0",
 ]
 authors = [
   {name="Thomas Faria", email="thomas.faria@insee.fr"}
