@@ -1,8 +1,9 @@
 import logging
+import os
 
+from dotenv import load_dotenv
 from langchain_community.document_loaders import DataFrameLoader
 
-from constants.graph_db import EMBEDDING_MODEL
 from constants.paths import NOTICES_PATH
 from utils.cypher import create_parent_child_relationships
 from utils.data import load_notices
@@ -11,12 +12,16 @@ from vector_db.loaders import create_vector_db, get_embedding_model, setup_graph
 from vector_db.utils import truncate_docs_to_max_tokens
 
 configure_logging()
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
 COLUMNS_TO_KEEP = ["ID", "CODE", "NAME", "PARENT_ID", "PARENT_CODE", "LEVEL", "FINAL", "text_content"]
 
 MAX_TOKENS = 512
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", None)
+if EMBEDDING_MODEL is None:
+    raise ValueError("EMBEDDING_MODEL environment variable must be set.")
 
 
 def run_pipeline():

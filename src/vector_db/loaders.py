@@ -1,10 +1,22 @@
 import logging
+import os
 
+from dotenv import load_dotenv
 from langchain_neo4j import Neo4jGraph, Neo4jVector
 from langchain_openai import OpenAIEmbeddings
 
 # from vector_db.openai_embeddings import CustomOpenAIEmbeddings
-from constants.graph_db import EMBEDDING_MODEL, NEO4J_PWD, NEO4J_URL, NEO4J_USERNAME, URL_EMBEDDING_API
+from constants.graph_db import NEO4J_PWD, NEO4J_URL, NEO4J_USERNAME
+
+load_dotenv()
+
+URL_EMBEDDING_API = os.environ.get("URL_EMBEDDING_API", None)
+if URL_EMBEDDING_API is None:
+    raise ValueError("URL_EMBEDDING_API environment variable must be set.")
+
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", None)
+if EMBEDDING_MODEL is None:
+    raise ValueError("EMBEDDING_MODEL environment variable must be set.")
 
 logger = logging.getLogger(__name__)
 
